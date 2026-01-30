@@ -707,7 +707,7 @@ class HabitatSimDepthSensor(DepthSensor):
 
         return obs
 
-
+ 
 @registry.register_sensor
 class HabitatSimSemanticSensor(SemanticSensor):
     sim_sensor_type: habitat_sim.SensorType
