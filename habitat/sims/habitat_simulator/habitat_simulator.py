@@ -775,6 +775,8 @@ class HabitatSim(habitat_sim.Simulator, Simulator):
         # 1. Simulator Configuration
         sim_cfg = habitat_sim.SimulatorConfiguration()
         sim_cfg.scene_id = self.habitat_config.SCENE
+        if hasattr(self.habitat_config, "SCENE_DATASET") and self.habitat_config.SCENE_DATASET:
+            sim_cfg.scene_dataset_config_file = self.habitat_config.SCENE_DATASET
         sim_cfg.gpu_device_id = self.habitat_config.HABITAT_SIM_V0.GPU_DEVICE_ID
         sim_cfg.allow_sliding = getattr(self.habitat_config.HABITAT_SIM_V0, "ALLOW_SLIDING", True)
         sim_cfg.frustum_culling = True
@@ -813,9 +815,13 @@ class HabitatSim(habitat_sim.Simulator, Simulator):
             hfov_val = getattr(sensor.config, "HFOV", getattr(sensor.config, "hfov", 90))
             sim_sensor_cfg.hfov = float(hfov_val)
 
-            # POSITION: Attached to the agent node
-            # Default to eye-level (roughly 1.25m - 1.5m)
-            sim_sensor_cfg.position = mn.Vector3(0, 1.25, 0)
+            # POSITION: Read from config, default to eye-level (1.25m)
+            pos = getattr(sensor.config, "POSITION", [0, 1.25, 0])
+            sim_sensor_cfg.position = mn.Vector3(pos[0], pos[1], pos[2])
+
+            # ORIENTATION: Read from config, default to forward-facing
+            orient = getattr(sensor.config, "ORIENTATION", [0.0, 0.0, 0.0])
+            sim_sensor_cfg.orientation = mn.Vector3(orient[0], orient[1], orient[2])
             
             sim_sensor_cfg.gpu2gpu_transfer = (
                 self.habitat_config.HABITAT_SIM_V0.GPU_GPU
